@@ -1,0 +1,15 @@
+#!/sbin/openrc-run
+# Script de service OpenRC pour l'agent Puppet installé via Gem
+
+# Le démon puppet va créer ce fichier PID
+pidfile="/var/run/puppet/agent.pid"
+
+# La commande à exécuter pour démarrer le service
+command="/usr/bin/puppet"
+command_args="agent --daemonize --logdest syslog"
+command_background=true
+
+depend() {
+    need net
+    after firewall
+}
