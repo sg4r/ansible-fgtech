@@ -1,0 +1,83 @@
+# Ansible Inventory: inventory.ini
+
+# =============================================
+# DEVELOPMENT ENVIRONMENT
+# =============================================
+[dev]
+dev-web-01.example.com
+dev-db-01.example.com
+
+# Variables specific to the dev environment
+[dev:vars]
+environment_name=development
+ansible_user=dev_user
+api_url=http://dev.api.example.com
+
+
+# =============================================
+# STAGING ENVIRONMENT
+# =============================================
+[staging]
+staging-web-01.example.com
+staging-web-02.example.com
+staging-db-01.example.com
+
+# Variables specific to the staging environment
+[staging:vars]
+environment_name=staging
+ansible_user=staging_user
+api_url=https://staging.api.example.com
+
+
+# =============================================
+# PRODUCTION ENVIRONMENT
+# =============================================
+[prod]
+prod-web-01.example.com
+prod-web-02.example.com
+prod-db-01.example.com
+prod-lb-01.example.com
+
+# Variables specific to the prod environment
+[prod:vars]
+environment_name=production
+ansible_user=prod_user
+api_url=https://api.example.com
+
+
+# =============================================
+# FUNCTIONAL GROUPS (by server role)
+# =============================================
+# You can also group servers by their function.
+# This is useful for running role-specific playbooks.
+# Note the use of ranges to simplify listing.
+[webservers]
+dev-web-01.example.com
+staging-web-[01:02].example.com
+prod-web-[01:02].example.com
+
+[dbservers]
+dev-db-01.example.com
+staging-db-01.example.com
+prod-db-01.example.com
+
+[loadbalancers]
+prod-lb-01.example.com
+
+
+# =============================================
+# PARENT GROUPS (using :children)
+# =============================================
+# This is the key to grouping your environments.
+# The 'all_environments' group now contains all hosts from dev, staging, and prod.
+[all_environments:children]
+dev
+staging
+prod
+
+# You can also create parent groups for functional roles
+[all_web:children]
+webservers
+
+[all_db:children]
+dbservers
