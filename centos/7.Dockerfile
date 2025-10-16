@@ -16,12 +16,13 @@ RUN INSTALL_PKGS='findutils initscripts iproute  openssh-client epel-release vim
     \
     && curl --silent 'https://copr.fedorainfracloud.org/coprs/jsynacek/systemd-backports-for-centos-7/repo/epel-7/jsynacek-systemd-backports-for-centos-7-epel-7.repo' --output /etc/yum.repos.d/jsynacek-systemd-centos-7.repo \
     && yum makecache fast && yum update -y \
-    && yum clean all \
+    && yum clean all
 
 
 RUN useradd -m ansible && echo "ansible:12345678" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     usermod -aG wheel ansible
+
 RUN find /etc/systemd/system \
     /lib/systemd/system \
     -path '*.wants/*' \

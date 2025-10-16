@@ -1,44 +1,59 @@
 ---
-- name: 🧪 VÉRIFICATION DE L'EE ANSIBLE (LOCALHOST)
+- name: 🧪 VÉRIFICATION DE LA COMPATIBILITÉ AVEC LA DETTE TECHNIQUE
   hosts: localhost
   connection: local
   gather_facts: false
 
   tasks:
-    - name: 1. Vérifier la version d'Ansible (doit être 2.9.13)
-      # Utilisation du binaire ansible-playbook pour vérifier la version installée dans l'EE
+    - name: 1. Confirmer l'interpréteur de l'EE (Moteur)
+      ansible.builtin.command: /usr/bin/python --version
+      register: ee_python_check
+      changed_when: false
+
+    - name: Afficher le moteur d'exécution (Python 3.x)
+      ansible.builtin.debug:
+        msg: "✅ Moteur d'exécution EE (localhost) : {{ ee_python_check.stdout | trim }}"
+
+    - name: 2. Confirmer la version d'Ansible (2.9.27)
       ansible.builtin.command: ansible-playbook --version
       register: ansible_version_check
       changed_when: false
 
-    - name: Afficher la version d'Ansible
-      ansible.builtin.debug:
-        msg: "✅ Version d'Ansible trouvée: {{ ansible_version_check.stdout_lines[0] | regex_replace('.*([0-9]+\\.[0-9]+\\.[0-9]+).*', '\\1') }}"
-
-    - name: 2. Vérifier l'interpréteur Python de l'EE (pour confirmation 2.7.5)
-      # Utiliser 'which python' pour trouver le chemin, puis vérifier la version.
-      ansible.builtin.command: which python
-      register: python_path_check
+    - name: Confirmer la version d'Ansible Runner (2.3.2)
+      ansible.builtin.command: ansible-runner --version
+      register: runner_version_check
       changed_when: false
 
-    - name: 3. Afficher et valider la version de Python
-      ansible.builtin.command: "{{ python_path_check.stdout | trim }} -V"
-      register: python_version_check
-      changed_when: false
-
-    - name: Afficher la version de Python
+    - name: Afficher les versions validées
       ansible.builtin.debug:
-        msg: "✅ Version de Python de l'EE: {{ python_version_check.stderr | trim }}"
+        msg: |
+          "--- RÉSULTATS DE L'EE ---
+          Ansible Version: {{ ansible_version_check.stdout_lines[0] | regex_replace('.*([0-9]+\\.[0-9]+\\.[0-9]+).*', '\\1') }}
+          Ansible Runner Version: {{ runner_version_check.stdout_lines[0] | trim }} (Compatible AWX)
+          "
+      failed_when: "'2.9.27' not in ansible_version_check.stdout"
 
-    - name: 4. Test d'un module basique (file) dans l'EE
-      # Cette tâche DOIT cibler localhost car c'est un test de la capacité de l'EE.
-      ansible.builtin.file:
-        path: /tmp/ee_test_ansible_29.txt
-        state: touch
-        mode: '0644'
-      delegate_to: localhost
-      register: file_result
+# --------------------------------------------------------------------------------------
+- name: 🚀 TESTER LE RÔLE SUR LA CIBLE ANCIENNE (CentOS 7 / Python 2.7.5)
+  hosts: ee_test # Hôtes avec Python 2.7
+  gather_facts: false
 
-    - name: Confirmer le succès du module 'file'
+  tasks:
+    - name: 3. Tester la connexion et vérifier l'interpréteur sur l'hôte cible
+      # Ansible utilise ici l'interpréteur /usr/bin/python de l'hôte cible (qui est Python 2.7.5)
+      ansible.builtin.command: /usr/bin/python -V
+      register: target_python_check
+
+    - name: Afficher l'interpréteur de la cible
       ansible.builtin.debug:
-        msg: "✅ Module 'file' (Ansible 2.9) testé avec succès dans l'EE."
+        msg: "✅ Interpréteur de la cible : {{ target_python_check.stderr | trim }} (Validation Python 2.7.x)"
+
+    - name: 4. Exécuter un module Ansible 2.9 (yum)
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+      register: yum_result
+
+    - name: Confirmer le succès sur la cible
+      ansible.builtin.debug:
+        msg: "✅ Test de Playbook 2.9 réussi sur cible ancienne."

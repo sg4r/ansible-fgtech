@@ -1,0 +1,14 @@
+# execution-environment.yml (Format V3 pour Ansible Builder 3.1.0)
+version: 3
+
+# La section 'options' est nécessaire pour les paramètres avancés.
+options:
+  # L'étape CRUCIALE : Force l'outil à utiliser votre Containerfile.
+  containerfile: Containerfile
+
+# Laissez les dépendances vides ou absentes
+dependencies: {}
+
+additional_build_steps:
+  prepend: []
+  append: []
