@@ -4,7 +4,7 @@ LABEL maintainer='Anton Melekhin'
 
 ENV container=docker
 ENV ROOT_PASSWORD="12345678"
-
+ARG SSH_PUBLIC_KEY
 RUN dnf update -y && dnf install epel-release -y
 
 RUN INSTALL_PKGS='findutils glibc-common initscripts iproute git vim htop python3 openssh-server openssh-clients sudo' \
@@ -15,7 +15,20 @@ RUN INSTALL_PKGS='findutils glibc-common initscripts iproute git vim htop python
 RUN dnf install https://yum.puppet.com/puppet8-release-el-9.noarch.rpm -y \
     && dnf install puppet-agent -y
 
+RUN useradd -m ansible && echo "ansible:12345678" | chpasswd && \
+    echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    usermod -aG wheel ansible
 
+USER ansible
+WORKDIR /home/ansible
+RUN mkdir -p /home/ansible/.ssh
+
+# Injecter la variable dans le fichier authorized_keys
+RUN echo "${SSH_PUBLIC_KEY}" >> /home/ansible/.ssh/authorized_keys \
+    && chmod 600 /home/ansible/.ssh/authorized_keys \
+    && chown ansible:ansible /home/ansible/.ssh/authorized_keys
+
+USER root
 # install ssh server
 RUN echo "root:${ROOT_PASSWORD}" | chpasswd && \
     # Permit root login with password (INSECURE for production)

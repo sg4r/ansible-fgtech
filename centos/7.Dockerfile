@@ -3,7 +3,7 @@ FROM centos:7
 LABEL maintainer='Anton Melekhin'
 
 ENV container=docker
-
+ARG SSH_PUBLIC_KEY
 # 1. Copier le script d'entrée
 COPY centos/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
@@ -23,6 +23,16 @@ RUN useradd -m ansible && echo "ansible:12345678" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     usermod -aG wheel ansible
 
+USER ansible
+WORKDIR /home/ansible
+RUN mkdir -p /home/ansible/.ssh
+
+# Injecter la variable dans le fichier authorized_keys
+RUN echo "${SSH_PUBLIC_KEY}" >> /home/ansible/.ssh/authorized_keys \
+    && chmod 600 /home/ansible/.ssh/authorized_keys \
+    && chown ansible:ansible /home/ansible/.ssh/authorized_keys
+
+USER root
 RUN find /etc/systemd/system \
     /lib/systemd/system \
     -path '*.wants/*' \
