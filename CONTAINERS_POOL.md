@@ -94,7 +94,8 @@ verifier:
   ```bash
 export DISTR='centos'
 export VERSION='7'
-docker build -t docker-systemd:${DISTR}-${VERSION} -f ${DISTR}/${VERSION}.Dockerfile .
+export KEY_CONTENT=$(cat ~/.ssh/id_rsa.pub)
+docker build --build-arg SSH_PUBLIC_KEY="${KEY_CONTENT}" -t docker-systemd:${DISTR}-${VERSION} -f ${DISTR}/${VERSION}.Dockerfile .
   ```
 
 - Run the container
