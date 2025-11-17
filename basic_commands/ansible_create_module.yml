@@ -7,7 +7,7 @@
      - name: Create a github Repository
        github_repo:
         github_auth_key: "{{ git_key.stdout }}"
-        name: "sigi-repo"
+        name: "fgtech-essai"
         description: "Ansible module for github"
         private: no
         has_issues: no

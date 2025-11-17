@@ -8,7 +8,7 @@ ARG SSH_PUBLIC_KEY
 
 RUN dnf update -y && dnf install epel-release -y
 
-RUN INSTALL_PKGS='findutils glibc-common initscripts iproute git vim htop python3 openssh-server openssh-clients sudo' \
+RUN INSTALL_PKGS='findutils glibc-common initscripts iproute git vim htop python3 openssh-server openssl openssh-clients sudo' \
     && dnf makecache && dnf install -y $INSTALL_PKGS \
     && dnf clean all
 
