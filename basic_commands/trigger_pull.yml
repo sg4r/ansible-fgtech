@@ -1,19 +1,18 @@
 # playbook_trigger_pull.yml
 ---
 - name: Déclencher l'exécution du playbook via Ansible-Pull
-  hosts: centos7_targets
+  hosts: 1.home
   become: yes
   tasks:
     - name: Lancer la commande ansible-pull
       ansible.builtin.shell: |
           /usr/bin/ansible-pull \
-          -U https:///ansible-config.git \
-          -d /opt/ansible_pull_repo \
-          -i /opt/ansible_pull_repo/inventory/hosts.yml \
-          /opt/ansible_pull_repo/site.yml
+          -U https://github.com/crunchy-devops/auditing.git \
+          -d /opt/reporting \
+          /opt/reporting/playbook.yml
       args:
         chdir: /opt/ansible_pull_repo # Changer le répertoire de travail
-        creates: /opt/ansible_pull_repo/site.yml # Optionnel: exécuter seulement si le fichier n'existe pas
+        #creates: /opt/ansible_pull_repo/site.yml # Optionnel: exécuter seulement si le fichier n'existe pas
 
     - name: Vérifier le Playbook Pull
       # La vérification de la réussite se fait via la sortie du shell.

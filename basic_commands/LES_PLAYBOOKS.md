@@ -1,5 +1,22 @@
 # Les Playbooks
 
+
+## ad-hoc commands 
+ansible 1.home  -m dnf -a "name=elinks state=latest" -i inventory
+ansible all -m dnf -b -a "name=elinks state=latest" -i inventory
+# utiliser portainer pour corriger le probleme 
+# il manque le package apt-get install apt-transport-https
+ansible all --list-hosts -i inventory
+ansible all -i inventory -m setup
+ansible all -m setup -a "filter=ansible_default_ipv4"  -i inventory
+ansible all -m setup -a "filter=ansible_distribution"  -i inventory 
+ansible all -m setup -a "filter=ansible_distribution_version"  -i inventory 
+ansible all -m command -a "df -h" -i inventory
+ansible all -m file -a "dest=/home/alma/testfile state=touch" -i inventory 
+
+
+
+
 ## Les facts dans un fichier YAML
 ### Utilisation de when 
 ```ansible-playbook -i inventory ansible_facts_using_when.yml```
