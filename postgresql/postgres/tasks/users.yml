@@ -14,4 +14,4 @@
     state: "{{ item.state | default(omit}}"
   with_items: "{{ postgresql_users }}"
   become: true
-  become_user: "{{ postgresql_users }}"
+  become_user: "{{ postgresql_user }}"
